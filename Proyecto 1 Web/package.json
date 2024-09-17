@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html"
+    "sass":"sass --watch --load-path=node_modules scss/main.scss:public/css/main.css"
+
   },
   "keywords": [],
   "author": "",
@@ -14,7 +14,6 @@
     "bootstrap": "^5.3.3"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "^2.12.0",
-    "parcel": "^2.12.0"
+    "sass": "^1.78.0"
   }
 }
