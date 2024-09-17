@@ -1,0 +1,24 @@
+# Ignora la carpeta de dependencias de Node.js
+node_modules/
+
+# Ignora archivos de caché del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignora archivos de compilación (dist, build, etc.)
+dist/
+build/
+.cache/
+
+# Ignora carpetas de SCSS o Parcel cache
+.parcel-cache/
+*.css.map
+
+# Ignora archivos de configuración del entorno
+.env
+.env.local
+
+# Ignora archivos de configuración del editor
+.vscode/
+.idea/
+*.log

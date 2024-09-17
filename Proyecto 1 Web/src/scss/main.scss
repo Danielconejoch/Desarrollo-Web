@@ -1,0 +1,58 @@
+// Importar todas las variables de Bootstrap
+@import "node_modules/bootstrap/scss/bootstrap";
+
+// Importar la fuente
+@import url('https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Foundation:wght@400..700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+
+// Aplica la fuente "Libre Baskerville" como fuente principal para todo el documento 
+body {
+  font-family: "Libre Baskerville", sans-serif; 
+  font-weight: 400;
+  font-style: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700; 
+  font-style: normal;
+}
+
+p, a, span {
+  font-weight: 400; 
+  font-style: normal;
+}
+
+body {
+  background-color: white;
+}
+
+// Navbar styles
+.nav-link.active {
+  background-color: #306073 !important;
+  color: white !important;
+}
+
+.nav-link.active:hover {
+  background-color: white !important;
+  color: black !important;
+}
+
+.navbar1 {
+  background-color: #306073 !important;
+}
+
+.DanielTitle {
+  color: white !important;
+}
+
+// Introduction styles
+
+.main-content {
+  background-color: #306073;
+  color: white;
+}
+
+.custom-header{
+  color: white !important;
+}
+// color: #1F4C73 !important;
