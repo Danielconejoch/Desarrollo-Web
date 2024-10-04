@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 1</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row justify-content-center align-items-center vh-100">
+        <div class="col-md-6">
+          <form>
+            <label for="textarea"
+              ><strong>Comentarios Adicionales</strong></label
+            ><br />
+            <textarea
+              id="textarea"
+              oninput="verificar(this, 230, document.getElementById('leyenda'));"
+              rows="4"
+              class="form-control"
+            ></textarea
+            ><br />
+            <p>(Caracteres máximos: 230)</p>
+            <span id="leyenda"
+              >Usted tiene un espacio de 230 caracteres restantes.</span
+            >
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
