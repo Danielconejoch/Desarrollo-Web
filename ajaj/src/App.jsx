@@ -12,7 +12,9 @@ function App() {
   useEffect(() => {
     // Obtener las provincias al cargar la página
     axios
-      .get("http://localhost/provincias.php")
+      .get(
+        "https://titanic.ecci.ucr.ac.cr/~ec12243/Desarrollo-Web/ajaj/php/provincias.php"
+      )
       .then((response) => setProvincias(response.data))
       .catch((error) => console.log(error));
   }, []);
@@ -23,7 +25,10 @@ function App() {
 
     // Obtener los cantones de la provincia seleccionada
     axios
-      .post("http://localhost/cantones.php", { id: provinciaId })
+      .post(
+        "https://titanic.ecci.ucr.ac.cr/~ec12243/Desarrollo-Web/ajaj/php/cantones.php",
+        { id: provinciaId }
+      )
       .then((response) => setCantones(response.data))
       .catch((error) => console.log(error));
 
@@ -37,7 +42,10 @@ function App() {
 
     // Obtener los distritos del cantón seleccionado
     axios
-      .post("http://localhost/distritos.php", { id: cantonId })
+      .post(
+        "https://titanic.ecci.ucr.ac.cr/~ec12243/Desarrollo-Web/ajaj/php/distritos.php",
+        { id: cantonId }
+      )
       .then((response) => setDistritos(response.data))
       .catch((error) => console.log(error));
   };
