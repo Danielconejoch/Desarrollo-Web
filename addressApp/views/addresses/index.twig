@@ -1,0 +1,37 @@
+{% extends 'layout.twig' %}
+
+{% block body %}
+  <h1>{{ title }}</h1>
+  <a href="/addresses/create">Agregar un nuevo contacto</a>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellidos</th>
+        <th>Teléfono de la Casa</th>
+        <th>Dirección de la Casa</th>
+        <th>Teléfono del Trabajo</th>
+        <th>Dirección del Trabajo</th>
+        <th>Correo Electrónico</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for address in addresses %}
+      <tr>
+        <td>{{ address.nombre }}</td>
+        <td>{{ address.apellidos }}</td>
+        <td>{{ address.telefonoCasa }}</td>
+        <td>{{ address.direccionCasa }}</td>
+        <td>{{ address.telefonoTrabajo }}</td>
+        <td>{{ address.direccionTrabajo }}</td>
+        <td>{{ address.correoElectronico }}</td>
+        <td>
+          <a href="/addresses/update/{{ address.id }}">Editar</a> |
+          <a href="/addresses/delete/{{ address.id }}" onclick="return confirm('¿Está seguro?');">Borrar</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
