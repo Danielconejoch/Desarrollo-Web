@@ -8,33 +8,24 @@ const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   
   if (req.method === 'GET' && parsedUrl.pathname === '/') {
-    // Muestra la página principal con el formulario y lista de mensajes.
+    // Página principal con formulario y enlace para ver comentarios.
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html');
-    fs.readFile('visitas.txt', 'utf8', (err, data) => {
-      const messages = err ? '' : data.split('\n').filter(Boolean).join('<br>');
-      res.end(`
-        <html>
-          <body>
-            <h1>Libro de Visitas</h1>
-            <form method="POST" action="/nuevo">
-              <label>Nombre:</label><br>
-              <input type="text" name="nombre" placeholder="Tu nombre" required><br><br>
-              
-              <label>Correo Electrónico:</label><br>
-              <input type="email" name="correo" placeholder="Tu correo electrónico" required><br><br>
-              
-              <label>Comentario:</label><br>
-              <textarea name="comentario" placeholder="Escribe tu comentario" required></textarea><br><br>
-              
-              <button type="submit">Enviar</button>
-            </form>
-            <h2>Mensajes:</h2>
-            <p>${messages || 'No hay mensajes aún.'}</p>
-          </body>
-        </html>
-      `);
-    });
+    res.end(`
+      <html>
+        <body>
+          <h1>Libro de Visitas</h1>
+          <form method="POST" action="/nuevo">
+            <input type="text" name="nombre" placeholder="Nombre" required><br><br>
+            <input type="email" name="correo" placeholder="Correo Electrónico" required><br><br>
+            <textarea name="comentario" placeholder="Escribe tu comentario" required></textarea><br><br>
+            <button type="submit">Enviar</button>
+          </form>
+          <br>
+          <a href="/comentarios">Ver Comentarios</a>
+        </body>
+      </html>
+    `);
   } else if (req.method === 'POST' && parsedUrl.pathname === '/nuevo') {
     // Almacena el nombre, correo y comentario en el archivo `visitas.txt`.
     let body = '';
@@ -52,8 +43,25 @@ const server = http.createServer((req, res) => {
         res.end();
       });
     });
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/comentarios') {
+    // Página que muestra todos los comentarios guardados en `visitas.txt`.
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html');
+    fs.readFile('visitas.txt', 'utf8', (err, data) => {
+      const messages = err ? 'No hay comentarios aún.' : data.split('\n').filter(Boolean).join('<br><br>');
+      res.end(`
+        <html>
+          <body>
+            <h1>Comentarios de los Visitantes</h1>
+            <p>${messages}</p>
+            <br>
+            <a href="/">Volver a la Página Principal</a>
+          </body>
+        </html>
+      `);
+    });
   } else {
-    // Muestra una página 404 para cualquier otra ruta.
+    // Página 404 para rutas no encontradas.
     res.statusCode = 404;
     res.setHeader('Content-Type', 'text/plain');
     res.end('404 - Página no encontrada');
