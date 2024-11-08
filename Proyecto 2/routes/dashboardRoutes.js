@@ -23,6 +23,7 @@ router.get('/', async (req, res) => {
 
     const categories = await Category.findAll();
     const authors = await User.findAll({ where: { role: 'autor' } });
+    const editingCommentId = req.query.editingCommentId || null;
 
     // Pass the session username to the template
     res.render('dashboard', {
@@ -30,7 +31,8 @@ router.get('/', async (req, res) => {
       posts,
       categories,
       authors,
-      sessionUsername: req.session.username // Pass the username from the session
+      sessionUsername: req.session.username,
+      editingCommentId 
     });
   } catch (error) {
     console.error('Error al cargar el dashboard:', error);

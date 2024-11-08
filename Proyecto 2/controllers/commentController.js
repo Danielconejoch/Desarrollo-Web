@@ -48,6 +48,30 @@ class CommentController {
     }
   }
 
+  async edit(req, res) {
+    try {
+      const commentId = req.params.id;
+      res.redirect(`/dashboard?editingCommentId=${commentId}`);
+    } catch (error) {
+      console.error('Error setting comment to edit mode:', error.message);
+      res.status(500).send('An error occurred while setting the comment to edit mode.');
+    }
+  }
+
+  async update(req, res) {
+    try {
+      const comment = await Comment.findByPk(req.params.id);
+      if (comment && comment.username === req.session.username) {
+        await comment.update({ content: req.body.content });
+        console.log('Comment updated successfully');
+      }
+      res.redirect('/dashboard');
+    } catch (error) {
+      console.error('Error updating comment:', error.message);
+      res.status(500).send('An error occurred while updating the comment.');
+    }
+  }
+
   async destroy(req, res) {
     try {
         // Fetch the comment by its ID from the request parameters
