@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Comment.belongsTo(models.User, {
         foreignKey: 'username',
-        targetKey: 'username', // Asegúrate de que esto coincide con el campo en el modelo User
+        targetKey: 'username',
         onDelete: 'SET NULL'
       });
     }

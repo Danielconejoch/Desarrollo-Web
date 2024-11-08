@@ -6,27 +6,23 @@
 
 {% block body %}
   <!-- Barra Superior -->
-  <<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Organización o persona</a>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand mx-3" href="/dashboard">We Care</a>
     <div class="collapse navbar-collapse justify-content-end">
-      <ul class="navbar-nav">
-        {% if not session.userId %}
-          <li class="nav-item"><a class="nav-link" href="/auth/login">Acceso</a></li>
-        {% else %}
-          <li class="nav-item"><a class="nav-link" href="/auth/logout">Cerrar sesión</a></li>
-        {% endif %}
-        <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
+      <ul class="navbar-nav mx-3">
+        <li class="nav-item"><a class="nav-link" href="/profile">My profile</a></li>
+        <li class="nav-item"><a class="nav-link" href="/auth/logout">Logout</a></li>
       </ul>
     </div>
   </nav>
 
   <!-- Título Principal -->
   <div class="jumbotron text-center bg-primary text-white">
-    <h1>Diario web</h1>
+    <h1>Welcome to We Care!</h1>
   </div>
 
   <!-- Contenido Principal -->
-  <div class="container">
+  <div class="container mt-5">
     <div class="row">
       <!-- Publicaciones -->
       <div class="col-md-9">
@@ -39,14 +35,14 @@
               
               <div class="d-flex justify-content-between">
                 <span>
-                  Autor: 
+                  Author: 
                   {% if post.author %}
                     <a href="/author/{{ post.author.username }}">{{ post.author.username }}</a>
                   {% else %}
                     Anónimo
                   {% endif %}
                 </span>
-                <span>Comentarios: {{ post.comments ? post.comments | length : 0 }}</span>
+                <span>Commments: {{ post.comments ? post.comments | length : 0 }}</span>
               </div>
               
               <!-- Listar comentarios -->

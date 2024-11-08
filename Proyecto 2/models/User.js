@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasMany(models.Post, {
         foreignKey: 'authorUsername',
+        sourceKey: 'username',
         onDelete: 'SET NULL'
       });
       User.hasMany(models.Comment, {

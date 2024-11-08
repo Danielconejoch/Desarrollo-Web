@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/userRoutes');
 var dashboardRouter = require('./routes/dashboardRoutes');
 const authRouter = require('./routes/authRoutes.js');
+const profileRouter = require('./routes/profileRoutes');
 const { ensureAuthenticated } = require('./middlewares/authMiddleware');
 
 var app = express();
@@ -24,17 +25,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Aquí debes tener la configuración del middleware de sesiones
 const session = require('express-session');
 app.use(session({
-  secret: 'your-secret-key',
+  secret: 'password123',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false } // Cambia a true si usas HTTPS
+  cookie: { secure: false }
 }));
 
 // Routes configuration
-app.use('/auth', authRouter); // Authentication routes (login and register)
+app.use('/auth', authRouter);
 
 // Public routes
 app.use('/home', indexRouter);
@@ -42,13 +42,14 @@ app.use('/home', indexRouter);
 // Protected routes (require authentication)
 app.use('/dashboard', ensureAuthenticated, dashboardRouter);
 app.use('/users', ensureAuthenticated, usersRouter);
+app.use('/profile', ensureAuthenticated, profileRouter); 
 
 // Default route to redirect to login if not authenticated
 app.get('/', (req, res) => {
   if (!req.cookies.token) { // Assuming token is set in cookies when logged in
     return res.redirect('/auth/login');
   }
-  res.redirect('/'); // If authenticated, redirect to dashboard or desired page
+  res.redirect('/dashboard'); // If authenticated, redirect to dashboard or desired page
 });
 
 // Captura de errores 404 y forward al manejador de errores

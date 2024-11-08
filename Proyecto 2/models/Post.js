@@ -4,10 +4,10 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Post extends Model {
     static associate(models) {
-      // Relación con User usando alias 'author'
       Post.belongsTo(models.User, {
-        as: 'author', // Alias para hacer la consulta más intuitiva
+        as: 'author',
         foreignKey: 'authorUsername',
+        targetKey: 'username',
         onDelete: 'SET NULL'
       });
 
