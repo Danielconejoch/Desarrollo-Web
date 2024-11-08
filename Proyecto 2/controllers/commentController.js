@@ -25,30 +25,49 @@ class CommentController {
     }
   }
 
-  async update(req, res) {
-    if (req.method === 'POST') {
-      try {
-        await Comment.update(req.body, { where: { id: req.params.id } });
-        res.redirect('/comments');
-      } catch (error) {
-        res.status(500).send(error.message);
+  async create(req, res) {
+    try {
+      const { postId, content } = req.body;
+      const username = req.session.username; // Assuming session stores the logged-in user's username
+
+      if (!username) {
+        return res.status(401).send('You need to be logged in to comment.');
       }
-    } else {
-      const comment = await Comment.findByPk(req.params.id, { include: [User, Post] });
-      const users = await User.findAll();
-      const posts = await Post.findAll();
-      res.render('comments/update', { title: 'Editar Comentario', comment, users, posts });
+
+      const newComment = await Comment.create({
+        content,
+        username,
+        postId
+      });
+      
+      console.log("Comment created:", newComment);
+      res.redirect(`/dashboard`); // Redirect back to the dashboard
+    } catch (error) {
+      console.error("Error creating comment:", error);
+      res.status(500).send("An error occurred while creating the comment.");
     }
   }
 
-  async delete(req, res) {
+  async destroy(req, res) {
     try {
-      await Comment.destroy({ where: { id: req.params.id } });
-      res.redirect('/comments');
+        // Fetch the comment by its ID from the request parameters
+        const comment = await Comment.findByPk(req.params.id);
+        
+        // Check if the comment exists and if the user is the author
+        if (comment && comment.username === req.session.username) {
+            await comment.destroy();
+            console.log('Comment deleted successfully:', comment.content);
+            res.redirect('/dashboard'); // Redirect to the dashboard or the post's page after deletion
+        } else {
+            console.log("Unauthorized attempt to delete comment");
+            res.redirect('/dashboard'); // Redirect if the user is unauthorized
+        }
     } catch (error) {
-      res.status(500).send(error.message);
+        console.error("Error deleting comment:", error);
+        res.status(500).send("An error occurred while deleting the comment.");
     }
   }
+
 }
 
 module.exports = new CommentController();
