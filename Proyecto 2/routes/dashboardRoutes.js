@@ -40,4 +40,36 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/category/:categoryId', async (req, res) => {
+  try {
+    const categoryId = req.params.categoryId;
+
+    // Obtén las publicaciones de la categoría seleccionada
+    const posts = await Post.findAll({
+      where: { categoryId },
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: User, as: 'author', attributes: ['username'] },
+        { model: Comment, as: 'comments', attributes: ['id', 'content', 'username'] }
+      ]
+    });
+
+    const categories = await Category.findAll();
+    const authors = await User.findAll({ where: { role: 'autor' } });
+    const editingCommentId = req.query.editingCommentId || null;
+
+    res.render('dashboard', {
+      title: 'Bienvenido | Diario Web',
+      posts,
+      categories,
+      authors,
+      sessionUsername: req.session.username,
+      editingCommentId 
+    });
+  } catch (error) {
+    console.error('Error al cargar el dashboard con categoría:', error);
+    res.status(500).send('Error al cargar la página principal');
+  }
+});
+
 module.exports = router;

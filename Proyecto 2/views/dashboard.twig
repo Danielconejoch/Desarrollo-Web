@@ -98,9 +98,12 @@
           <h4>Categorías</h4>
           <ul class="list-group mb-4">
             {% for category in categories %}
-              <li class="list-group-item"><a href="/category/{{ category.id }}">{{ category.name }}</a></li>
+              <li class="list-group-item">
+                <a href="/dashboard/category/{{ category.id }}">{{ category.name }}</a>
+              </li>
             {% endfor %}
           </ul>
+
 
           <h4>Autores</h4>
           <ul class="list-group">
