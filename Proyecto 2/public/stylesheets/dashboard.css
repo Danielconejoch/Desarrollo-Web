@@ -1,0 +1,96 @@
+/* dashboard.css */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212; /* Fondo oscuro */
+  color: #e0e0e0; /* Texto claro */
+}
+
+.navbar {
+  background-color: #1f1f1f; /* Fondo oscuro para la barra de navegación */
+  color: #e0e0e0;
+}
+
+.jumbotron {
+  background-color: #333333; /* Fondo más claro que el fondo general */
+  color: #f1f1f1;
+}
+
+.card {
+  background-color: #1c1c1c; /* Fondo oscuro para las tarjetas */
+  color: #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+  color: #90caf9; /* Azul suave para el título */
+  font-weight: bold;
+}
+
+.card-text {
+  color: #b0bec5; /* Gris claro para el texto */
+}
+
+.list-group-item {
+  background-color: #1c1c1c; /* Fondo oscuro para los elementos de la lista */
+}
+
+.list-group-item a {
+  color: #90caf9; /* Azul claro para los enlaces */
+  text-decoration: none;
+}
+
+.list-group-item a:hover {
+  text-decoration: underline;
+  color: #bbdefb;
+}
+
+.pagination .page-item .page-link {
+  color: #90caf9; /* Azul claro para los enlaces de paginación */
+  background-color: #1f1f1f; /* Fondo oscuro para los enlaces de paginación */
+  border-color: #333333;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #90caf9; /* Azul claro para el enlace activo */
+  color: #121212; /* Texto oscuro en el enlace activo */
+  border-color: #90caf9;
+}
+
+h4 {
+  color: #90caf9; /* Azul claro para encabezados */
+}
+
+ul li {
+  color: #b0bec5; /* Gris claro para los elementos de lista */
+}
+
+/* Botones y enlaces */
+button, .btn {
+  background-color: #90caf9;
+  color: #121212;
+  border: none;
+}
+
+button:hover, .btn:hover {
+  background-color: #bbdefb;
+  color: #121212;
+}
+
+a {
+  color: #90caf9;
+}
+
+a:hover {
+  color: #bbdefb;
+}
+
+/* Ajustes adicionales */
+.navbar .nav-link {
+  color: #e0e0e0;
+}
+
+.navbar .nav-link:hover {
+  color: #90caf9;
+}

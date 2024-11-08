@@ -1,0 +1,100 @@
+{% extends 'layout.twig' %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="/stylesheets/dashboard.css">
+{% endblock %}
+
+{% block body %}
+  <!-- Barra Superior -->
+  <<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Organización o persona</a>
+    <div class="collapse navbar-collapse justify-content-end">
+      <ul class="navbar-nav">
+        {% if not session.userId %}
+          <li class="nav-item"><a class="nav-link" href="/auth/login">Acceso</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="/auth/logout">Cerrar sesión</a></li>
+        {% endif %}
+        <li class="nav-item"><a class="nav-link" href="#">Administración</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Título Principal -->
+  <div class="jumbotron text-center bg-primary text-white">
+    <h1>Diario web</h1>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="container">
+    <div class="row">
+      <!-- Publicaciones -->
+      <div class="col-md-9">
+        {% for post in posts %}
+          <div class="card mb-4">
+            <img class="card-img-top" src="{{ post.image_url | default('https://via.placeholder.com/850x350') }}" alt="Imagen de publicación">
+            <div class="card-body">
+              <h3 class="card-title">{{ post.title }} <small class="text-muted">{{ post.createdAt | date("d/m/Y") }}</small></h3>
+              <p class="card-text">{{ post.summary | slice(0, 300) }}{% if post.summary|length > 300 %}... <a href="/posts/{{ post.id }}">Leer más</a>{% endif %}</p>
+              
+              <div class="d-flex justify-content-between">
+                <span>
+                  Autor: 
+                  {% if post.author %}
+                    <a href="/author/{{ post.author.username }}">{{ post.author.username }}</a>
+                  {% else %}
+                    Anónimo
+                  {% endif %}
+                </span>
+                <span>Comentarios: {{ post.comments ? post.comments | length : 0 }}</span>
+              </div>
+              
+              <!-- Listar comentarios -->
+              <div class="mt-3">
+                {% if post.comments and post.comments.length > 0 %}
+                  {% for comment in post.comments %}
+                    <p><strong>{{ comment.username }}:</strong> {{ comment.content }}</p>
+                  {% endfor %}
+                {% else %}
+                  <p>No hay comentarios.</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Categorías y Autores -->
+      <div class="col-md-3">
+        <div class="sticky-top">
+          <h4>Categorías</h4>
+          <ul class="list-group mb-4">
+            {% for category in categories %}
+              <li class="list-group-item"><a href="/category/{{ category.id }}">{{ category.name }}</a></li>
+            {% endfor %}
+          </ul>
+
+          <h4>Autores</h4>
+          <ul class="list-group">
+            {% for author in authors %}
+              <li class="list-group-item"><a href="/author/{{ author.username }}">{{ author.username }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    <nav aria-label="Paginación de publicaciones" class="mt-4">
+      <ul class="pagination justify-content-center">
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1">Previa</a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+      </ul>
+    </nav>
+  </div>
+{% endblock %}
