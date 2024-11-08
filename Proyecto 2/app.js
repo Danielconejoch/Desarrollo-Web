@@ -10,6 +10,7 @@ var usersRouter = require('./routes/userRoutes');
 var dashboardRouter = require('./routes/dashboardRoutes');
 const authRouter = require('./routes/authRoutes.js');
 const profileRouter = require('./routes/profileRoutes');
+const postRoutes = require('./routes/postRoutes');
 const { ensureAuthenticated } = require('./middlewares/authMiddleware');
 
 var app = express();
@@ -42,7 +43,8 @@ app.use('/home', indexRouter);
 // Protected routes (require authentication)
 app.use('/dashboard', ensureAuthenticated, dashboardRouter);
 app.use('/users', ensureAuthenticated, usersRouter);
-app.use('/profile', ensureAuthenticated, profileRouter); 
+app.use('/profile', ensureAuthenticated, profileRouter);
+app.use('/posts', ensureAuthenticated, postRoutes);
 
 // Default route to redirect to login if not authenticated
 app.get('/', (req, res) => {

@@ -1,45 +1,54 @@
 {% extends 'layout.twig' %}
 
+{% block extra_css %}
+  <link rel="stylesheet" href="/stylesheets/dashboard.css">
+{% endblock %}
+
 {% block body %}
-  <h1>{{ title }}</h1>
-  <form method="POST">
-    <div class="form-group">
-      <label for="nombre">Nombre:</label>
-      <input id="nombre" name="nombre" type="text" required>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand mx-3" href="/dashboard">We Care</a>
+    <div class="collapse navbar-collapse justify-content-end">
+      <ul class="navbar-nav mx-3">
+        <li class="nav-item"><a class="nav-link" href="/profile">My profile</a></li>
+        <li class="nav-item"><a class="nav-link" href="/auth/logout">Logout</a></li>
+      </ul>
     </div>
-    
-    <div class="form-group">
-      <label for="apellidos">Apellidos:</label>
-      <input id="apellidos" name="apellidos" type="text" required>
-    </div>
-    
-    <div class="form-group">
-      <label for="telefonoCasa">Teléfono de la Casa:</label>
-      <input id="telefonoCasa" name="telefonoCasa" type="text">
-    </div>
-    
-    <div class="form-group">
-      <label for="direccionCasa">Dirección de la Casa:</label>
-      <input id="direccionCasa" name="direccionCasa" type="text">
-    </div>
-    
-    <div class="form-group">
-      <label for="telefonoTrabajo">Teléfono del Trabajo:</label>
-      <input id="telefonoTrabajo" name="telefonoTrabajo" type="text">
-    </div>
-    
-    <div class="form-group">
-      <label for="direccionTrabajo">Dirección del Trabajo:</label>
-      <input id="direccionTrabajo" name="direccionTrabajo" type="text">
-    </div>
-    
-    <div class="form-group-full">
-      <label for="correoElectronico">Correo Electrónico:</label>
-      <input id="correoElectronico" name="correoElectronico" type="email" required>
-    </div>
-    
-    <div class="form-group-full">
-      <button type="submit">Guardar</button>
-    </div>
-  </form>
+  </nav>
+
+  <div class="jumbotron text-center bg-primary text-white">
+    <h1>Create New Post</h1>
+  </div>
+
+  <div class="container mt-5">
+    <form action="/posts" method="POST">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" name="title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="summary">Summary</label>
+        <textarea class="form-control" id="summary" name="summary" placeholder="Brief summary of the post" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="content">Content</label>
+        <textarea class="form-control" id="content" name="content" placeholder="Main content of the post" required></textarea>
+      </div>
+
+      <!-- Dropdown for categories -->
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select class="form-control" id="category" name="categoryId" required>
+          <option value="" disabled selected>Select a category</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Create Post</button>
+    </form>
+
+  </div>
 {% endblock %}
