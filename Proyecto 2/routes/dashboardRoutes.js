@@ -72,4 +72,35 @@ router.get('/category/:categoryId', async (req, res) => {
   }
 });
 
+router.get('/author/:authorUsername', async (req, res) => {
+  try {
+    const authorUsername = req.params.authorUsername;
+
+    const posts = await Post.findAll({
+      where: { authorUsername },
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: User, as: 'author', attributes: ['username'] },
+        { model: Comment, as: 'comments', attributes: ['id', 'content', 'username'] }
+      ]
+    });
+
+    const categories = await Category.findAll();
+    const authors = await User.findAll({ where: { role: 'autor' } });
+
+    // Renderiza el dashboard sin el parámetro editingCommentId para evitar activar el modo de edición.
+    res.render('dashboard', {
+      title: 'Bienvenido | Diario Web',
+      posts,
+      categories,
+      authors,
+      sessionUsername: req.session.sessionUsername,
+      editingCommentId: null // Asegurarse de que esté `null` para no activar el modo de edición
+    });
+  } catch (error) {
+    console.error('Error al cargar el dashboard filtrado por autor:', error);
+    res.status(500).send('Error al cargar la página principal');
+  }
+});
+
 module.exports = router;

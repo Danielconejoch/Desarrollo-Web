@@ -105,10 +105,13 @@
           </ul>
 
 
+          <!-- Sección de Autores -->
           <h4>Autores</h4>
           <ul class="list-group">
             {% for author in authors %}
-              <li class="list-group-item"><a href="/author/{{ author.username }}">{{ author.username }}</a></li>
+              <li class="list-group-item">
+                <a href="/dashboard/author/{{ author.username }}">{{ author.username }}</a>
+              </li>
             {% endfor %}
           </ul>
         </div>
