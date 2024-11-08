@@ -45,15 +45,25 @@
                 <span>Comments: {{ post.comments ? post.comments | length : 0 }}</span>
               </div>
               
-              <!-- Listar comentarios -->
+              <!-- List comments -->
               <div class="mt-3">
-                {% if post.comments and post.comments.length > 0 %}
-                  {% for comment in post.comments %}
-                    <p><strong>{{ comment.username }}:</strong> {{ comment.content }}</p>
-                  {% endfor %}
-                {% else %}
-                  <p>No hay comentarios.</p>
-                {% endif %}
+                  {% if post.comments and post.comments.length > 0 %}
+                      {% for comment in post.comments %}
+                          <p><strong>{{ comment.username }}:</strong> {{ comment.content }}</p>
+                          <p>Debug - Comment Author: {{ comment.username }} | Logged-in User: {{ session.username }}</p> <!-- Debugging -->
+
+                          {% if comment.username == sessionUsername %}
+                            <div class="d-flex mb-2">
+                              <a href="/comments/{{ comment.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                              <form action="/comments/{{ comment.id }}/delete" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger ml-2">Delete</button>
+                              </form>
+                            </div>
+                          {% endif %}
+                      {% endfor %}
+                  {% else %}
+                      <p>No comments yet.</p>
+                  {% endif %}
               </div>
 
               <!-- Formulario para agregar comentario -->

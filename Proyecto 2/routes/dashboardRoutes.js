@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
         {
           model: Comment,
           as: 'comments', // Ensure this matches the alias in the Comment model association
-          attributes: ['content', 'username'] // Include content and username of the comments
+          attributes: ['id', 'content', 'username'] // Include id, content, and username of the comments
         }
       ]
     });
@@ -24,11 +24,13 @@ router.get('/', async (req, res) => {
     const categories = await Category.findAll();
     const authors = await User.findAll({ where: { role: 'autor' } });
 
+    // Pass the session username to the template
     res.render('dashboard', {
       title: 'Bienvenido | Diario Web',
       posts,
       categories,
-      authors
+      authors,
+      sessionUsername: req.session.username // Pass the username from the session
     });
   } catch (error) {
     console.error('Error al cargar el dashboard:', error);
