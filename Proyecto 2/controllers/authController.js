@@ -53,6 +53,7 @@ exports.logout = (req, res) => {
     if (err) {
       return res.status(500).json({ error: 'Error al cerrar sesión' });
     }
-    res.json({ message: 'Sesión cerrada correctamente' });
+    res.clearCookie('connect.sid'); // Borrar la cookie de sesión
+    res.redirect('/auth/login'); // Redirigir a la página de inicio de sesión
   });
 };

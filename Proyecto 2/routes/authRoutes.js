@@ -29,7 +29,7 @@ router.post(
 router.post(
   '/login',
   [
-    body('username').notEmpty().withMessage('El nombre de usuario es obligatorio'), // Cambiar 'email' a 'username'
+    body('username').notEmpty().withMessage('El nombre de usuario es obligatorio'),
     body('password').notEmpty().withMessage('La contraseña es obligatoria')
   ],
   login
@@ -37,6 +37,6 @@ router.post(
 
 
 // Logout route
-router.post('/logout', logout);
+router.get('/logout', logout);
 
 module.exports = router;
