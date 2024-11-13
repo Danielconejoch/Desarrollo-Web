@@ -31,13 +31,13 @@ exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ where: { username } });
 
-    if (user) {
-      const isPasswordValid = password === user.password;
-
-      if (isPasswordValid) {
-        req.session.username = user.username;
-        return res.redirect('/dashboard');
-      }
+    if (user.password === password) {
+      console.log('User role:', user.role);
+      req.session.username = user.username;
+      req.session.role = user.role;
+      return user.role === 'administrador' 
+        ? res.redirect('/admin/dashboard') 
+        : res.redirect('/dashboard');
     }
 
     res.status(401).send('Credenciales inválidas');

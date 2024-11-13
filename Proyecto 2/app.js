@@ -12,7 +12,8 @@ const authRouter = require('./routes/authRoutes.js');
 const profileRouter = require('./routes/profileRoutes');
 const postRoutes = require('./routes/postRoutes');
 const commentsRouter = require('./routes/commentRoutes');
-const { ensureAuthenticated } = require('./middlewares/authMiddleware');
+const adminRouter = require('./routes/adminRoutes');
+const { ensureAuthenticated, checkAdmin } = require('./middlewares/authMiddleware');
 
 var app = express();
 
@@ -47,6 +48,7 @@ app.use('/users', ensureAuthenticated, usersRouter);
 app.use('/profile', ensureAuthenticated, profileRouter);
 app.use('/posts', ensureAuthenticated, postRoutes);
 app.use('/comments',ensureAuthenticated, commentsRouter);
+app.use('/admin', ensureAuthenticated, checkAdmin, adminRouter);
 
 // Default route to redirect to login if not authenticated
 app.get('/', (req, res) => {
