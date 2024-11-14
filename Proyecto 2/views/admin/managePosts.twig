@@ -1,0 +1,132 @@
+{% extends 'layout.twig' %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="/stylesheets/dashboard.css">
+{% endblock %}
+
+{% block body %}
+  <!-- Barra Superior -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand mx-3" href="/admin/dashboard">We Care Admin</a>
+    <div class="collapse navbar-collapse justify-content-end">
+      <ul class="navbar-nav mx-3">
+        <li class="nav-item"><a class="nav-link" href="/profile">My profile</a></li>
+        <li class="nav-item"><a class="nav-link" href="/auth/logout">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Título Principal -->
+  <div class="jumbotron text-center bg-primary text-white">
+    <h1>Manage Posts and Comments</h1>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="container mt-5">
+    <!-- Botón para crear un nuevo post -->
+    <div class="mb-4 text-right">
+      <a href="/admin/posts/create" class="btn btn-primary">Create New Post</a>
+    </div>
+
+    <div class="row">
+      <!-- Publicaciones -->
+      <div class="col-md-9">
+        {% for post in posts %}
+          <div class="card mb-4">
+            <img class="card-img-top" src="{{ post.image_url | default('https://via.placeholder.com/850x350') }}" alt="Post Image">
+            <div class="card-body">
+              <h3 class="card-title">{{ post.title }} <small class="text-muted">{{ post.createdAt | date("d/m/Y") }}</small></h3>
+              <p class="card-text">{{ post.summary | slice(0, 300) }}{% if post.summary|length > 300 %}... <a href="/posts/{{ post.id }}">Read more</a>{% endif %}</p>
+              
+              <div class="d-flex justify-content-between">
+                <span>
+                  Author: 
+                  {% if post.author %}
+                    <a href="/author/{{ post.author.username }}">{{ post.author.username }}</a>
+                  {% else %}
+                    Anonymous
+                  {% endif %}
+                </span>
+                <span>Comments: {{ post.comments ? post.comments | length : 0 }}</span>
+              </div>
+
+              <!-- Botones de administración para cada publicación -->
+              <div class="mt-2">
+                {% if post.author.username == sessionUsername %}
+                  <a href="/admin/posts/edit/{{ post.id }}" class="btn btn-warning btn-sm">Edit</a>
+                {% endif %}
+                <form action="/admin/posts/delete/{{ post.id }}" method="POST" style="display: inline;">
+                  <button type="submit" class="btn btn-danger btn-sm">Delete post</button>
+                </form>
+              </div>
+
+             <!-- List comments -->
+              <div class="mt-3">
+                {% if post.comments and post.comments.length > 0 %}
+                  {% for comment in post.comments %}
+                    <div class="mb-2">
+                      {% if comment.id == editingCommentId %}
+                        <!-- Formulario de edición de comentario -->
+                        <form action="/admin/comments/{{ comment.id }}/update?postId={{ post.id }}" method="POST">
+                          <textarea name="content" class="form-control mt-2">{{ comment.content }}</textarea>
+                          <button type="submit" class="btn btn-primary btn-sm mt-2">Save Changes</button>
+                        </form>
+                      {% else %}
+                        <!-- Vista de comentario normal -->
+                        <p><strong>{{ comment.username }}:</strong> {{ comment.content }}</p>
+                        <div class="d-flex">
+                          {% if comment.username == sessionUsername %}
+                            <form action="/admin/comments/{{ comment.id }}/edit?postId={{ post.id }}" method="POST" style="display:inline;">
+                              <button type="submit" class="btn btn-sm btn-secondary mr-2">Edit</button>
+                            </form>
+                          {% endif %}
+                          <form action="/admin/comments/{{ comment.id }}/delete" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete comment</button>
+                          </form>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <p>No comments yet.</p>
+                {% endif %}
+              </div>
+
+              <!-- Formulario para agregar comentario -->
+              <form action="/admin/comments/create" method="POST" class="mt-3">
+                <input type="hidden" name="postId" value="{{ post.id }}">
+                <div class="form-group">
+                  <textarea name="content" class="form-control" rows="2" placeholder="Add a comment..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Comment</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Categorías y Autores -->
+      <div class="col-md-3">
+        <div class="sticky-top">
+          <h4>Categories</h4>
+          <ul class="list-group mb-4">
+            {% for category in categories %}
+              <li class="list-group-item">
+                <a href="/admin/posts/category/{{ category.id }}">{{ category.name }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+
+          <h4>Authors</h4>
+          <ul class="list-group">
+            {% for author in authors %}
+              <li class="list-group-item">
+                <a href="/admin/posts/author/{{ author.username }}">{{ author.username }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
