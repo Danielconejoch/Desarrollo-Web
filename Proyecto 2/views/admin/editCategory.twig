@@ -1,0 +1,30 @@
+{% extends 'layout.twig' %}
+
+{% block body %}
+
+<!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand mx-3" href="admin/dashboard">We Care</a>
+    <div class="collapse navbar-collapse justify-content-end">
+      <ul class="navbar-nav mx-3">
+        <li class="nav-item"><a class="nav-link" href="/auth/logout">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Título Principal -->
+  <div class="jumbotron text-center bg-primary text-white">
+    <h1>Welcome to We Care Admin!</h1>
+  </div>
+
+  <div class="container mt-5">
+    <h1>Edit Category</h1>
+    <form action="/admin/categories/{{ category.id }}" method="POST">
+      <div class="form-group">
+        <label for="name">Category Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ category.name }}" required>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">Update Category</button>
+    </form>
+  </div>
+{% endblock %}
