@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "root",
-    "password": "Diaz123",
-    "database": "blog_db",
+    "username": "ec12243",
+    "password": "Xec12243",
+    "database": "ci0137_ec12243",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
