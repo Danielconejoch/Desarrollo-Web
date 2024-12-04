@@ -1,0 +1,35 @@
+
+# Instrucciones de Instalación y Ejecución
+
+## Frontend
+
+### Instalación
+1. Navegar al directorio del frontend:
+   cd frontend
+
+2. Instalar las dependencias:
+   npm install
+
+### Ejecución
+1. Iniciar el frontend:
+   npm start
+
+2. Acceder a la aplicación en `http://localhost:3000`.
+
+
+## Backend
+
+### Instalación
+1. Navega al directorio del backend:
+   cd backend
+
+2. Crea y activa un entorno virtual:
+   python -m venv venv
+   venv\Scripts\activate  # En Windows
+   ```
+3. Instala las dependencias necesarias:
+   pip install -r requirements.txt
+
+### Ejecución
+1. Inicia el servidor backend:
+   uvicorn main:app --reload
