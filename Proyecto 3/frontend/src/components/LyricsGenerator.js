@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/system";
 import {
   Box,
@@ -28,6 +29,18 @@ const Sidebar = styled(Box)({
   display: "flex",
   flexDirection: "column",
   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+  position: "relative",
+});
+
+const LogoutButton = styled(Button)({
+  position: "absolute",
+  top: "16px",
+  right: "16px",
+  backgroundColor: "#d32f2f",
+  color: "#ffffff",
+  "&:hover": {
+    backgroundColor: "#b71c1c",
+  },
 });
 
 const ChatContainer = styled(Box)(({ theme }) => ({
@@ -97,9 +110,14 @@ const AddChatButton = styled(Button)({
 });
 
 const ChatUI = () => {
-  const [chats, setChats] = useState([]);
-  const [activeChat, setActiveChat] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?.email || "default_user";
+  const [chats, setChats] = useState(() => {
+    const savedChats = JSON.parse(localStorage.getItem("userChats")) || {};
+    return savedChats[userId] || [{ id: Date.now(), name: "New Chat", messages: [{ id: 1, text: "Welcome to Taylor's Version AI!", isUser: false }] }];
+  });
+  const [activeChat, setActiveChat] = useState(chats[0]?.id || null);
   const [newMessage, setNewMessage] = useState("");
   const [temperature, setTemperature] = useState(0.7);
   const messageEndRef = useRef(null);
@@ -110,24 +128,38 @@ const ChatUI = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [chats, activeChat]);
+
+  useEffect(() => {
+    const savedChats = JSON.parse(localStorage.getItem("userChats")) || {};
+    savedChats[userId] = chats;
+    localStorage.setItem("userChats", JSON.stringify(savedChats));
+  }, [chats, userId]);
 
   const handleNewChat = () => {
-    const newChat = { id: Date.now(), name: "New Chat", messages: [] };
+    const newChat = {
+      id: Date.now(),
+      name: "New Chat",
+      messages: [{ id: 1, text: "Welcome to Taylor's Version AI!", isUser: false }],
+    };
     setChats((prevChats) => [...prevChats, newChat]);
     setActiveChat(newChat.id);
-    setMessages([]);
   };
 
   const handleSend = async () => {
     if (!newMessage.trim()) return;
 
-    // Add user message
     const userMessage = { id: Date.now(), text: newMessage, isUser: true };
-    setMessages((prev) => [...prev, userMessage]);
 
-    // Set chat name to the first message
-    if (chats.length && chats.find((chat) => chat.id === activeChat).name === "New Chat") {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === activeChat
+          ? { ...chat, messages: [...chat.messages, userMessage] }
+          : chat
+      )
+    );
+
+    if (chats.find((chat) => chat.id === activeChat)?.name === "New Chat") {
       setChats((prevChats) =>
         prevChats.map((chat) =>
           chat.id === activeChat ? { ...chat, name: newMessage } : chat
@@ -135,9 +167,14 @@ const ChatUI = () => {
       );
     }
 
-    // Add "Loading..." placeholder
     const loadingMessage = { id: Date.now() + 1, text: "Loading...", isUser: false };
-    setMessages((prev) => [...prev, loadingMessage]);
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === activeChat
+          ? { ...chat, messages: [...chat.messages, loadingMessage] }
+          : chat
+      )
+    );
 
     setNewMessage("");
 
@@ -148,19 +185,34 @@ const ChatUI = () => {
         temperature,
       });
 
-      // Replace "Loading..." with the response
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.text === "Loading..." ? { ...msg, text: response.data.response } : msg
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === activeChat
+            ? {
+                ...chat,
+                messages: chat.messages.map((msg) =>
+                  msg.text === "Loading..."
+                    ? { ...msg, text: response.data.response }
+                    : msg
+                ),
+              }
+            : chat
         )
       );
     } catch (error) {
       console.error("Error:", error);
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.text === "Loading..."
-            ? { ...msg, text: "Error: Could not fetch response." }
-            : msg
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === activeChat
+            ? {
+                ...chat,
+                messages: chat.messages.map((msg) =>
+                  msg.text === "Loading..."
+                    ? { ...msg, text: "Error: Could not fetch response." }
+                    : msg
+                ),
+              }
+            : chat
         )
       );
     }
@@ -174,22 +226,24 @@ const ChatUI = () => {
   };
 
   const handleChatClick = (id) => {
-    const selectedChat = chats.find((chat) => chat.id === id);
     setActiveChat(id);
-    setMessages(selectedChat.messages);
   };
 
   const handleTemperatureChange = (event, newValue) => {
     setTemperature(newValue);
   };
 
+  const handleLogout = () => {
+    const savedChats = JSON.parse(localStorage.getItem("userChats")) || {};
+    savedChats[userId] = chats;
+    localStorage.setItem("userChats", JSON.stringify(savedChats)); // Guardar chats al hacer logout
+    navigate("/");
+  };
+
   return (
     <PageContainer>
       <Sidebar>
-        <Typography
-          variant="h6"
-          sx={{ p: 2, color: "#d32f2f", fontWeight: "bold" }}
-        >
+        <Typography variant="h6" sx={{ p: 2, color: "#d32f2f", fontWeight: "bold" }}>
           Chats
         </Typography>
         <Divider />
@@ -203,52 +257,33 @@ const ChatUI = () => {
             >
               <ListItemText
                 primary={chat.name}
-                secondary={chat.messages[chat.messages.length - 1]?.text || ""}
                 primaryTypographyProps={{ fontWeight: "medium" }}
               />
             </ListItem>
           ))}
         </List>
         <Divider />
-        <AddChatButton
-          variant="contained"
-          startIcon={<IoAddCircleOutline />}
-          onClick={handleNewChat}
-        >
+        <AddChatButton variant="contained" startIcon={<IoAddCircleOutline />} onClick={handleNewChat}>
           New Chat
         </AddChatButton>
         <Box sx={{ p: 2 }}>
           <Typography gutterBottom>Temperature: {temperature}</Typography>
-          <Slider
-            value={temperature}
-            onChange={handleTemperatureChange}
-            min={0.1}
-            max={1.0}
-            step={0.1}
-            sx={{ color: "#d32f2f" }}
-          />
+          <Slider value={temperature} onChange={handleTemperatureChange} min={0.1} max={1.0} step={0.1} sx={{ color: "#d32f2f" }} />
         </Box>
       </Sidebar>
 
       <ChatContainer>
-        <Typography
-          variant="h5"
-          component="h1"
-          sx={{ mb: 2, color: "#d32f2f", fontWeight: "bold" }}
-        >
+        <LogoutButton variant="contained" startIcon={<IoLogOutOutline />} onClick={handleLogout}>
+          Logout
+        </LogoutButton>
+        <Typography variant="h5" component="h1" sx={{ mb: 2, color: "#d32f2f", fontWeight: "bold" }}>
           Taylor's Version AI <IoHeart style={{ verticalAlign: "middle" }} />
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
         <MessageArea role="log" aria-label="Chat messages">
-          {messages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              isUser={message.isUser}
-              elevation={1}
-              role="article"
-              aria-label={`${message.isUser ? "Sent" : "Received"} message`}
-            >
+          {chats.find((chat) => chat.id === activeChat)?.messages.map((message) => (
+            <MessageBubble key={message.id} isUser={message.isUser} elevation={1} role="article" aria-label={`${message.isUser ? "Sent" : "Received"} message`}>
               <Typography>{message.text}</Typography>
             </MessageBubble>
           ))}
@@ -266,11 +301,7 @@ const ChatUI = () => {
             maxRows={4}
             aria-label="Message input"
           />
-          <SendButton
-            onClick={handleSend}
-            disabled={!newMessage.trim()}
-            aria-label="Send message"
-          >
+          <SendButton onClick={handleSend} disabled={!newMessage.trim()} aria-label="Send message">
             <IoSend />
           </SendButton>
         </InputArea>

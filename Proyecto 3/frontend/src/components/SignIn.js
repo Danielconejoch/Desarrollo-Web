@@ -53,6 +53,10 @@ const FormSection = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
+const InvisibleButton = styled(Box)(({ theme }) => ({
+  height: theme.spacing(4), // Altura para añadir espacio
+}));
+
 const ImageSection = styled(Box)(({ theme }) => ({
   flex: 1,
   display: { xs: "none", md: "block" },
@@ -146,6 +150,7 @@ const LoginPage = () => {
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <InvisibleButton />
             <GoogleButton
               startIcon={<FaGoogle className="icon" />}
               fullWidth
@@ -154,6 +159,7 @@ const LoginPage = () => {
             >
               {loading ? "Connecting..." : "Continue with Google"}
             </GoogleButton>
+            <InvisibleButton />
 
             {error && (
               <Fade in={!!error}>
