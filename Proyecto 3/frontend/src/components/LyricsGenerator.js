@@ -1,256 +1,282 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { styled } from "@mui/system";
 import {
   Box,
   Typography,
   TextField,
   IconButton,
+  Paper,
+  Slider,
+  Button,
   List,
   ListItem,
   ListItemText,
-  ListItemIcon,
-  Drawer,
-  Slider,
   Divider,
-  Paper,
-  Avatar,
-  InputAdornment,
-  Button,
 } from "@mui/material";
-import { styled } from "@mui/system";
-import { BsFillSendFill, BsSearch, BsThreeDots } from "react-icons/bs";
+import { IoSend, IoHeart, IoLogOutOutline, IoAddCircleOutline } from "react-icons/io5";
 
-const drawerWidth = 280;
+const PageContainer = styled(Box)({
+  display: "flex",
+  height: "100vh",
+  background: "linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)",
+});
 
-const StyledDrawer = styled(Drawer)(() => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  "& .MuiDrawer-paper": {
-    width: drawerWidth,
-    boxSizing: "border-box",
-    backgroundColor: "#f5f5f5",
-  },
-}));
-
-const MessageContainer = styled(Box)(() => ({
+const Sidebar = styled(Box)({
+  width: "280px",
+  backgroundColor: "#ffffff",
   display: "flex",
   flexDirection: "column",
-  padding: "16px",
-  gap: "12px",
+  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+});
+
+const ChatContainer = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(2),
+}));
+
+const MessageArea = styled(Box)({
   flexGrow: 1,
   overflowY: "auto",
-}));
+  marginBottom: "16px",
+  "&::-webkit-scrollbar": {
+    width: "6px",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: "#e57373",
+    borderRadius: "3px",
+  },
+});
 
-const Message = styled(Paper)(({ isUser }) => ({
-  padding: "12px",
+const MessageBubble = styled(Paper)(({ isUser }) => ({
+  padding: "12px 16px",
+  borderRadius: isUser ? "20px 20px 0 20px" : "20px 20px 20px 0",
   maxWidth: "70%",
-  alignSelf: isUser ? "flex-end" : "flex-start",
-  backgroundColor: isUser ? "#1976d2" : "#ffffff",
-  color: isUser ? "#ffffff" : "inherit",
-  borderRadius: "12px",
+  marginBottom: "12px",
+  marginLeft: isUser ? "auto" : "0",
+  marginRight: isUser ? "0" : "auto",
+  backgroundColor: isUser ? "#d32f2f" : "#ffffff",
+  color: isUser ? "#ffffff" : "#000000",
   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+  transition: "transform 0.2s ease",
 }));
 
-const ChatComponent = () => {
-  const [message, setMessage] = useState("");
-  const [temperature, setTemperature] = useState(0.5);
-  const [chats, setChats] = useState([
-    {
-      id: 1,
-      name: "Taylor Swift Lyrics",
-      messages: [
-        {
-          id: 1,
-          text: "¡Hola! Escribe un inicio para la letra de una canción de Taylor Swift.",
-          isUser: false,
-        },
-      ],
+const InputArea = styled(Box)({
+  display: "flex",
+  gap: "12px",
+  alignItems: "center",
+});
+
+const StyledTextField = styled(TextField)({
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "25px",
+    backgroundColor: "#ffffff",
+    "&.Mui-focused fieldset": {
+      borderColor: "#d32f2f",
     },
-  ]);
-  const [currentChatId, setCurrentChatId] = useState(1);
+  },
+});
 
-  const currentChat = chats.find((chat) => chat.id === currentChatId);
+const SendButton = styled(IconButton)({
+  backgroundColor: "#d32f2f",
+  color: "#ffffff",
+  "&:hover": {
+    backgroundColor: "#b71c1c",
+  },
+});
 
-  const handleSendMessage = async () => {
-    if (!message.trim()) return;
+const AddChatButton = styled(Button)({
+  margin: "16px",
+  backgroundColor: "#d32f2f",
+  color: "#ffffff",
+  "&:hover": {
+    backgroundColor: "#d32f2f",
+  },
+});
 
-    const userMessage = {
-      id: currentChat.messages.length + 1,
-      text: message,
-      isUser: true,
-    };
+const ChatUI = () => {
+  const [chats, setChats] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [temperature, setTemperature] = useState(0.7);
+  const messageEndRef = useRef(null);
 
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat.id === currentChatId
-          ? { ...chat, messages: [...chat.messages, userMessage] }
-          : chat
-      )
-    );
-    setMessage("");
+  const scrollToBottom = () => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleNewChat = () => {
+    const newChat = { id: Date.now(), name: "New Chat", messages: [] };
+    setChats((prevChats) => [...prevChats, newChat]);
+    setActiveChat(newChat.id);
+    setMessages([]);
+  };
+
+  const handleSend = async () => {
+    if (!newMessage.trim()) return;
+
+    // Add user message
+    const userMessage = { id: Date.now(), text: newMessage, isUser: true };
+    setMessages((prev) => [...prev, userMessage]);
+
+    // Set chat name to the first message
+    if (chats.length && chats.find((chat) => chat.id === activeChat).name === "New Chat") {
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === activeChat ? { ...chat, name: newMessage } : chat
+        )
+      );
+    }
+
+    // Add "Loading..." placeholder
+    const loadingMessage = { id: Date.now() + 1, text: "Loading...", isUser: false };
+    setMessages((prev) => [...prev, loadingMessage]);
+
+    setNewMessage("");
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/generate_text", {
-        model: "default",
-        messages: [{ start_string: message }],
+        model: "taylor_swift",
+        messages: [{ start_string: newMessage }],
         temperature,
       });
 
-      const botMessage = {
-        id: currentChat.messages.length + 2,
-        text: response.data.response || "No se pudo generar una respuesta.",
-        isUser: false,
-      };
-
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat.id === currentChatId
-            ? { ...chat, messages: [...chat.messages, botMessage] }
-            : chat
+      // Replace "Loading..." with the response
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.text === "Loading..." ? { ...msg, text: response.data.response } : msg
         )
       );
     } catch (error) {
-      const errorMessage = {
-        id: currentChat.messages.length + 2,
-        text: "Error al conectar con el servidor. Por favor, intenta nuevamente.",
-        isUser: false,
-      };
-
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat.id === currentChatId
-            ? { ...chat, messages: [...chat.messages, errorMessage] }
-            : chat
+      console.error("Error:", error);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.text === "Loading..."
+            ? { ...msg, text: "Error: Could not fetch response." }
+            : msg
         )
       );
     }
   };
 
-  const handleTemperatureChange = (_, newValue) => {
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleChatClick = (id) => {
+    const selectedChat = chats.find((chat) => chat.id === id);
+    setActiveChat(id);
+    setMessages(selectedChat.messages);
+  };
+
+  const handleTemperatureChange = (event, newValue) => {
     setTemperature(newValue);
   };
 
-  const handleAddChat = () => {
-    const newChatId = chats.length + 1;
-    const newChat = {
-      id: newChatId,
-      name: `Chat ${newChatId}`,
-      messages: [
-        {
-          id: 1,
-          text: `¡Hola! Escribe un inicio para la letra de una canción de Taylor Swift.`,
-          isUser: false,
-        },
-      ],
-    };
-    setChats((prevChats) => [...prevChats, newChat]);
-    setCurrentChatId(newChatId);
-  };
-
-  const handleSelectChat = (chatId) => {
-    setCurrentChatId(chatId);
-  };
-
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
-      <StyledDrawer variant="permanent" anchor="left">
-        <Box sx={{ p: 2 }}>
-          <TextField
-            fullWidth
-            placeholder="Search chats"
-            size="small"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <BsSearch />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Box>
+    <PageContainer>
+      <Sidebar>
+        <Typography
+          variant="h6"
+          sx={{ p: 2, color: "#d32f2f", fontWeight: "bold" }}
+        >
+          Chats
+        </Typography>
         <Divider />
-        <List>
+        <List sx={{ flex: 1, overflowY: "auto" }}>
           {chats.map((chat) => (
             <ListItem
-              button
               key={chat.id}
-              onClick={() => handleSelectChat(chat.id)}
-              selected={chat.id === currentChatId}
+              button
+              onClick={() => handleChatClick(chat.id)}
+              sx={{ "&:hover": { backgroundColor: "#ffebee" } }}
             >
-              <ListItemIcon>
-                <Avatar sx={{ width: 32, height: 32 }}>{chat.name[0]}</Avatar>
-              </ListItemIcon>
-              <ListItemText primary={chat.name} />
+              <ListItemText
+                primary={chat.name}
+                secondary={chat.messages[chat.messages.length - 1]?.text || ""}
+                primaryTypographyProps={{ fontWeight: "medium" }}
+              />
             </ListItem>
           ))}
         </List>
         <Divider />
-        <Box sx={{ p: 2, textAlign: "center" }}>
-          <Button variant="contained" color="primary" fullWidth onClick={handleAddChat}>
-            New Chat
-          </Button>
-        </Box>
+        <AddChatButton
+          variant="contained"
+          startIcon={<IoAddCircleOutline />}
+          onClick={handleNewChat}
+        >
+          New Chat
+        </AddChatButton>
         <Box sx={{ p: 2 }}>
-          <Typography variant="subtitle2" gutterBottom>
-            Temperature
-          </Typography>
+          <Typography gutterBottom>Temperature: {temperature}</Typography>
           <Slider
             value={temperature}
             onChange={handleTemperatureChange}
-            min={0}
-            max={1}
+            min={0.1}
+            max={1.0}
             step={0.1}
-            valueLabelDisplay="auto"
-            aria-label="Temperature"
+            sx={{ color: "#d32f2f" }}
           />
         </Box>
-      </StyledDrawer>
-      <Box sx={{ flexGrow: 1, p: 3, display: "flex", flexDirection: "column" }}>
-        <Paper elevation={0} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-          <Box
-            sx={{
-              p: 2,
-              borderBottom: "1px solid rgba(0,0,0,0.12)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
+      </Sidebar>
+
+      <ChatContainer>
+        <Typography
+          variant="h5"
+          component="h1"
+          sx={{ mb: 2, color: "#d32f2f", fontWeight: "bold" }}
+        >
+          Taylor's Version AI <IoHeart style={{ verticalAlign: "middle" }} />
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+
+        <MessageArea role="log" aria-label="Chat messages">
+          {messages.map((message) => (
+            <MessageBubble
+              key={message.id}
+              isUser={message.isUser}
+              elevation={1}
+              role="article"
+              aria-label={`${message.isUser ? "Sent" : "Received"} message`}
+            >
+              <Typography>{message.text}</Typography>
+            </MessageBubble>
+          ))}
+          <div ref={messageEndRef} />
+        </MessageArea>
+
+        <InputArea>
+          <StyledTextField
+            fullWidth
+            placeholder="Type your message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            multiline
+            maxRows={4}
+            aria-label="Message input"
+          />
+          <SendButton
+            onClick={handleSend}
+            disabled={!newMessage.trim()}
+            aria-label="Send message"
           >
-            <Typography variant="h6">{currentChat.name}</Typography>
-            <IconButton>
-              <BsThreeDots />
-            </IconButton>
-          </Box>
-          <MessageContainer>
-            {currentChat.messages.map((msg) => (
-              <Message key={msg.id} isUser={msg.isUser}>
-                <Typography variant="body1">{msg.text}</Typography>
-              </Message>
-            ))}
-          </MessageContainer>
-          <Box sx={{ p: 2, borderTop: "1px solid rgba(0,0,0,0.12)", mt: "auto" }}>
-            <TextField
-              fullWidth
-              multiline
-              rows={2}
-              placeholder="Type your message here..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleSendMessage} disabled={!message.trim()}>
-                      <BsFillSendFill />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
-        </Paper>
-      </Box>
-    </Box>
+            <IoSend />
+          </SendButton>
+        </InputArea>
+      </ChatContainer>
+    </PageContainer>
   );
 };
 
-export default ChatComponent;
+export default ChatUI;

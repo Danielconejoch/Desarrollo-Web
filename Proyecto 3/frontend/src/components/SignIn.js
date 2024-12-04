@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import {
   Box,
   Button,
@@ -7,9 +8,13 @@ import {
   Paper,
   styled,
   Alert,
-  Fade
+  Fade,
 } from "@mui/material";
-import { FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
+import { initializeGoogleAuth, signInWithGoogle } from "./GoogleAuth";
+
+const CLIENT_ID =
+  "959635192925-gvg3h3ej8rridlh5jkatitcvfsh95gsg.apps.googleusercontent.com";
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   minHeight: "100vh",
@@ -24,16 +29,10 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   backgroundSize: "400% 400%",
   animation: "gradient 15s ease infinite",
   "@keyframes gradient": {
-    "0%": {
-      backgroundPosition: "0% 50%"
-    },
-    "50%": {
-      backgroundPosition: "100% 50%"
-    },
-    "100%": {
-      backgroundPosition: "0% 50%"
-    }
-  }
+    "0%": { backgroundPosition: "0% 50%" },
+    "50%": { backgroundPosition: "100% 50%" },
+    "100%": { backgroundPosition: "0% 50%" },
+  },
 }));
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -43,7 +42,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   maxWidth: 1000,
   overflow: "hidden",
   borderRadius: theme.spacing(2),
-  boxShadow: "0 8px 40px rgba(139, 0, 0, 0.2)"
+  boxShadow: "0 8px 40px rgba(139, 0, 0, 0.2)",
 }));
 
 const FormSection = styled(Box)(({ theme }) => ({
@@ -68,8 +67,8 @@ const ImageSection = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1
-  }
+    zIndex: 1,
+  },
 }));
 
 const GoogleButton = styled(Button)(({ theme }) => ({
@@ -84,13 +83,13 @@ const GoogleButton = styled(Button)(({ theme }) => ({
     backgroundColor: "#f5f5f5",
     transform: "scale(1.02)",
     transition: "all 0.3s ease",
-    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
   },
   "& .icon": {
-    color: "#DB4437"
+    color: "#DB4437",
   },
   "&:active": {
-    transform: "scale(0.98)"
+    transform: "scale(0.98)",
   },
   fontSize: "1rem",
   fontWeight: 500,
@@ -99,76 +98,33 @@ const GoogleButton = styled(Button)(({ theme }) => ({
   transition: "all 0.3s ease",
 }));
 
-const GithubButton = styled(Button)(({ theme }) => ({
-  marginBottom: theme.spacing(1),
-  justifyContent: "center",
-  alignItems: "center",
-  padding: theme.spacing(1.5, 2),
-  color: "#ffffff",
-  backgroundColor: "#24292e",
-  "&:hover": {
-    backgroundColor: "#1b1f23",
-    transform: "scale(1.02)",
-    transition: "all 0.3s ease",
-    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)"
-  },
-  "&:active": {
-    transform: "scale(0.98)"
-  },
-  fontSize: "1rem",
-  fontWeight: 500,
-  textTransform: "none",
-  borderRadius: theme.spacing(1),
-  transition: "all 0.3s ease"
-}));
-
-const FacebookButton = styled(Button)(({ theme }) => ({
-  marginBottom: theme.spacing(1),
-  justifyContent: "center",
-  alignItems: "center",
-  padding: theme.spacing(1.5, 2),
-  color: "#ffffff",
-  backgroundColor: "#1877f2",
-  "&:hover": {
-    backgroundColor: "#166fe5",
-    transform: "scale(1.02)",
-    transition: "all 0.3s ease",
-    boxShadow: "0 4px 20px rgba(24, 119, 242, 0.2)"
-  },
-  "&:active": {
-    transform: "scale(0.98)"
-  },
-  fontSize: "1rem",
-  fontWeight: 500,
-  textTransform: "none",
-  borderRadius: theme.spacing(1),
-  transition: "all 0.3s ease"
-}));
-
 const LoginPage = () => {
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState({
-    google: false,
-    github: false,
-    facebook: false
-  });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = async (provider) => {
+  useEffect(() => {
+    initializeGoogleAuth(CLIENT_ID).catch((err) => {
+      console.error("Failed to initialize Google Sign-In:", err);
+      setError("Failed to initialize Google Sign-In. Please refresh and try again.");
+    });
+  }, []);
+
+  const handleGoogleLogin = async () => {
     try {
       setError("");
-      setLoading(prev => ({ ...prev, [provider]: true }));
+      setLoading(true);
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const userData = await signInWithGoogle();
+      console.log("User logged in:", userData);
 
-      if (Math.random() > 0.5) {
-        throw new Error(`${provider} login failed. Please try again.`);
-      }
-
-      console.log(`Successfully logged in with ${provider}`);
+      localStorage.setItem("user", JSON.stringify(userData));
+      
+      navigate("/lyrics");
     } catch (err) {
-      setError(err.message);
+      setError("Google login failed. Please try again.");
     } finally {
-      setLoading(prev => ({ ...prev, [provider]: false }));
+      setLoading(false);
     }
   };
 
@@ -176,49 +132,33 @@ const LoginPage = () => {
     <StyledContainer>
       <StyledPaper elevation={0}>
         <FormSection>
-          <Typography 
-            variant="h4" 
-            component="h1" 
-            gutterBottom 
-            sx={{ 
-              color: "black", 
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            sx={{
+              color: "black",
               fontWeight: "bold",
-              marginBottom: 4
+              marginBottom: 4,
             }}
           >
             Welcome Back
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <GoogleButton 
-              startIcon={<FaGoogle className="icon" />} 
+            <GoogleButton
+              startIcon={<FaGoogle className="icon" />}
               fullWidth
-              onClick={() => handleLogin("google")}
-              disabled={loading.google}
+              onClick={handleGoogleLogin}
+              disabled={loading}
             >
-              {loading.google ? "Connecting..." : "Continue with Google"}
+              {loading ? "Connecting..." : "Continue with Google"}
             </GoogleButton>
-            <GithubButton 
-              startIcon={<FaGithub />} 
-              fullWidth
-              onClick={() => handleLogin("github")}
-              disabled={loading.github}
-            >
-              {loading.github ? "Connecting..." : "Continue with GitHub"}
-            </GithubButton>
-            <FacebookButton 
-              startIcon={<FaFacebook />} 
-              fullWidth
-              onClick={() => handleLogin("facebook")}
-              disabled={loading.facebook}
-            >
-              {loading.facebook ? "Connecting..." : "Continue with Facebook"}
-            </FacebookButton>
 
             {error && (
               <Fade in={!!error}>
-                <Alert 
-                  severity="error" 
+                <Alert
+                  severity="error"
                   sx={{ mt: 2 }}
                   onClose={() => setError("")}
                 >
@@ -234,4 +174,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;
